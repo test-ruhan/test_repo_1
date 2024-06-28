@@ -3,13 +3,11 @@ name: Update Checkov Severity Mapping
 on:
   schedule:
     - cron: "0 0 * * 0"  # Runs every Sunday at midnight UTC
-  workflow_dispatch:
+  workflow_dispatch:  
 
 jobs:
   update-severity-mapping:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
     - name: Checkout this repository
@@ -26,53 +24,26 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Debug - List directory contents
-      run: ls -la
-
-    - name: Debug - Print working directory
-      run: pwd
-
-    - name: Debug - Check for package.json
-      run: |
-        if [ -f package.json ]; then
-          echo "package.json exists"
-          cat package.json
-        else
-          echo "package.json does not exist"
-        fi
-
-    - name: Create package.json if not exists
-      run: |
-        if [ ! -f package.json ]; then
-          echo '{"name": "checkov-severity-mapping", "version": "1.0.0", "private": true}' > package.json
-          echo "Created package.json"
-        else
-          echo "package.json already exists"
-        fi
-
-    - name: Debug - Show package.json content
-      run: cat package.json
-
     - name: Install dependencies
       run: npm install
 
-      - name: Run scraper script
-        run: node scripts/checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
+    - name: Run scraper script
+      run: node scripts/checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
+    
+    - name: Debug - Print git status
+      run: git status
+      
+    - name: Check for changes
+      id: git_status
+      run: |
+        git add checkov_policy_severity.ts
+        git status
+        git diff --staged --exit-code || echo "::set-output name=changed::true"
 
-      - name: Debug - Print git status
-        run: git status
-
-      - name: Check for changes
-        id: git_status
-        run: |
-          git add checkov_policy_severity.ts
-          git status
-          git diff --staged --exit-code || echo "::set-output name=changed::true"
-
-      - name: Commit changes
-        if: steps.git_status.outputs.changed == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit -m "Update Checkov severity mapping"
-          git push origin main
+    - name: Commit changes
+      if: steps.git_status.outputs.changed == 'true'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git commit -m "Update Checkov severity mapping"
+        git push origin main
