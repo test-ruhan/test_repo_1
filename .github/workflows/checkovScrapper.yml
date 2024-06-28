@@ -13,6 +13,9 @@ jobs:
     - name: Checkout this repository
       uses: actions/checkout@v2
 
+    - name: Remove old checkov-docs if exists
+      run: rm -rf checkov-docs
+
     - name: Clone Checkov Docs Repository
       run: git clone https://github.com/hlxsites/prisma-cloud-docs checkov-docs
 
