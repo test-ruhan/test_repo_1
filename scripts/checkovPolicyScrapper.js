@@ -68,7 +68,7 @@ function main() {
 	processDirectory(directoryPath)
 
 	// Generate TypeScript file content
-	let tsContent = "export const checkovPolicySeverity = {\n"
+	let tsContent = "export const checkovPolicySeverity: Record<string, string> = {\n"
 	Object.keys(output).forEach(checkovId => {
 		tsContent += `  "${checkovId}": "${output[checkovId]}",\n`
 	})
