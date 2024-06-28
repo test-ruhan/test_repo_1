@@ -1,0 +1,23 @@
+name: Clone Checkov Repo
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight UTC
+  workflow_dispatch:  # Allows manual trigger from the GitHub UI
+
+jobs:
+  clone-checkov:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Clone Checkov Repository
+      run: git clone https://github.com/bridgecrewio/checkov.git checkov-docs
+
+    - name: List cloned files
+      run: ls checkov-docs
