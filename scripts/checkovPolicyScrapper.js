@@ -1,6 +1,14 @@
 import fs from "fs"
 import path from "path"
-
+/**
+ * This script is used to parse the Checkov policy documentation to extract the Checkov ID and Severity.
+ * How to run the script:
+ * 1. Clone the open source repo https://github.com/hlxsites/prisma-cloud-docs
+ * 2. Run the script from the root of the repo with the directoryPath set to the path of the policy-reference directory.
+ *    which is "docs/en/enterprise-edition/policy-reference"
+ * 3. The script will parse all the .adoc files in the directory and its subdirectories and extract the Checkov ID and Severity.
+ * 4. The script will generate a TypeScript file 'checkov_policy_severity.ts' with the extracted data.
+ **/
 function parseAdoc(filePath) {
 	const content = fs.readFileSync(filePath, "utf-8")
 
