@@ -25,7 +25,7 @@ jobs:
       run: npm install
 
     - name: Run scraper script
-      run: node checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
+      run: node scripts/checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
 
     - name: Check for changes
       id: git_status
