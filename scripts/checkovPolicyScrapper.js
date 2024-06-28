@@ -1,5 +1,8 @@
-import fs from "fs"
-import path from "path"
+/* eslint-disable */
+const fs = require('fs');
+const path = require('path');
+
+
 /**
  * This script is used to parse the Checkov policy documentation to extract the Checkov ID and Severity.
  * How to run the script:
@@ -12,10 +15,15 @@ import path from "path"
 function parseAdoc(filePath) {
 	const content = fs.readFileSync(filePath, "utf-8")
 
-	const checkovIdRegex = /\|\s*Checkov ID\s*\|\s*(?:https:\/\/[^\[]+\[([^\]]+)\]|([^\n\r]+))/
+	// Regex pattern to extract Checkov ID
+	const checkovIdRegex =
+		/\|\s*Checkov ID\s*\|\s*(?:https:\/\/[^\[]+\[([^\]]+)\]|([^\n\r]+))/
 	const checkovIdMatch = content.match(checkovIdRegex)
-	const checkovId = checkovIdMatch ? checkovIdMatch[1] || checkovIdMatch[2] : null
+	const checkovId = checkovIdMatch
+		? checkovIdMatch[1] || checkovIdMatch[2]
+		: null
 
+	// Regex pattern to extract Severity
 	const severityRegex = /\|Severity\s*\|\s*(\w+)\s*/
 	const severityMatch = content.match(severityRegex)
 	const severity = severityMatch ? severityMatch[1] : null
@@ -27,13 +35,13 @@ function parseAdoc(filePath) {
 }
 
 function main() {
+	// const directoryPath = "docs/en/enterprise-edition/policy-reference"
 	const directoryPath = process.argv[2]
 	if (!directoryPath) {
 		console.error("Please provide the directory path as an argument")
 		process.exit(1)
 	}
-
-	const output = []
+	const output = {}
 
 	function processDirectory(dirPath) {
 		const files = fs.readdirSync(dirPath)
@@ -44,14 +52,14 @@ function main() {
 			if (fs.statSync(filePath).isDirectory()) {
 				processDirectory(filePath)
 			} else if (filePath.endsWith(".adoc")) {
+				// Check if the file should be processed based on filename filtering
 				const fileName = path.basename(filePath).toLowerCase()
 				if (fileName.includes("policies") || fileName.includes("index")) {
-					console.log(`Skipping file: ${filePath}`)
-					return
+					return // Skip processing this file
 				}
-				const parsedData = parseAdoc(filePath)
-				if (parsedData.checkovId && parsedData.severity) {
-					output.push(parsedData)
+				const { checkovId, severity } = parseAdoc(filePath)
+				if (checkovId && severity) {
+					output[checkovId] = severity
 				}
 			}
 		})
@@ -59,16 +67,19 @@ function main() {
 
 	processDirectory(directoryPath)
 
-	const tsContent = `export const checkovPolicySeverity = ${JSON.stringify(
-		output.reduce((acc, { checkovId, severity }) => {
-			acc[checkovId] = severity
-			return acc
-		}, {}),
-		null,
-		2
-	)};`
+	// Generate TypeScript file content
+	let tsContent = "export const checkovPolicySeverity = {\n"
+	Object.keys(output).forEach(checkovId => {
+		tsContent += `  "${checkovId}": "${output[checkovId]}",\n`
+	})
+	tsContent += "};\n"
 
+	// Write to TypeScript file
 	fs.writeFileSync("checkov_policy_severity.ts", tsContent)
+
+	console.log(
+		"TypeScript file 'checkov_policy_severity.ts' generated successfully.",
+	)
 }
 
 main()
