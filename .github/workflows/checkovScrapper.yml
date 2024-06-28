@@ -29,7 +29,10 @@ jobs:
 
     - name: Run scraper script
       run: node scripts/checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
-
+    
+    - name: Debug - Print git status
+      run: git status
+      
     - name: Check for changes
       id: git_status
       run: |
