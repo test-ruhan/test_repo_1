@@ -2,7 +2,7 @@ name: Update Checkov Severity Mapping
 
 on:
   schedule:
-    - cron: "0 0 * * 0" # Runs every Sunday at midnight UTC
+    - cron: "0 0 * * 0"  # Runs every Sunday at midnight UTC
   workflow_dispatch:
 
 jobs:
@@ -12,22 +12,49 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v2
+    - name: Checkout this repository
+      uses: actions/checkout@v2
 
-      - name: Remove old checkov-docs if exists
-        run: rm -rf checkov-docs
+    - name: Remove old checkov-docs if exists
+      run: rm -rf checkov-docs
 
-      - name: Clone Checkov Docs Repository
-        run: git clone https://github.com/hlxsites/prisma-cloud-docs checkov-docs
+    - name: Clone Checkov Docs Repository
+      run: git clone https://github.com/hlxsites/prisma-cloud-docs checkov-docs
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "20"
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
+    - name: Debug - List directory contents
+      run: ls -la
+
+    - name: Debug - Print working directory
+      run: pwd
+
+    - name: Debug - Check for package.json
+      run: |
+        if [ -f package.json ]; then
+          echo "package.json exists"
+          cat package.json
+        else
+          echo "package.json does not exist"
+        fi
+
+    - name: Create package.json if not exists
+      run: |
+        if [ ! -f package.json ]; then
+          echo '{"name": "checkov-severity-mapping", "version": "1.0.0", "private": true}' > package.json
+          echo "Created package.json"
+        else
+          echo "package.json already exists"
+        fi
+
+    - name: Debug - Show package.json content
+      run: cat package.json
+
+    - name: Install dependencies
+      run: npm install
 
       - name: Run scraper script
         run: node scripts/checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
