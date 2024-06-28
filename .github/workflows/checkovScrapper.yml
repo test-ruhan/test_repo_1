@@ -36,7 +36,7 @@ jobs:
     - name: Check for changes
       id: git_status
       run: |
-        git add .
+        git add checkov_policy_severity.ts  # Add the new file explicitly
         git diff --exit-code || echo "::set-output name=changed::true"
 
     - name: Commit changes
