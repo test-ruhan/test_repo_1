@@ -1,0 +1,42 @@
+name: Update Checkov Severity Mapping
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # Runs every Sunday at midnight UTC
+  workflow_dispatch:  # Allows manual trigger from the GitHub UI
+
+jobs:
+  update-severity-mapping:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout this repository
+      uses: actions/checkout@v2
+
+    - name: Clone Checkov Docs Repository
+      run: git clone https://github.com/bridgecrewio/checkov.git checkov-docs
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run scraper script
+      run: node scraper.js checkov-docs/docs/en/enterprise-edition/policy-reference
+
+    - name: Check for changes
+      id: git_status
+      run: |
+        git add .
+        git diff --exit-code || echo "::set-output name=changed::true"
+
+    - name: Commit changes
+      if: steps.git_status.outputs.changed == 'true'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git commit -m "Update Checkov severity mapping"
+        git push origin main
