@@ -1,8 +1,8 @@
 name: Update Checkov Severity Mapping
 
 on:
-  schedule:
-    - cron: "0 0 * * 0" # Runs every Sunday at midnight UTC
+  # schedule:
+    # - cron: "0 0 * * 0" # Runs every Sunday at midnight UTC
   workflow_dispatch: # Allows manual trigger from the GitHub UI
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run scraper script
         run: node scripts/checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
