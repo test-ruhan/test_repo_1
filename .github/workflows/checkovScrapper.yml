@@ -1,8 +1,8 @@
 name: Update Checkov Severity Mapping
 
 on:
-  # schedule:
-    # - cron: "0 0 * * 0" # Runs every Sunday at midnight UTC
+  schedule:
+    - cron: "0 0 * * 0" # Runs every Sunday at midnight UTC
   workflow_dispatch: # Allows manual trigger from the GitHub UI
 
 jobs:
@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout this repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Checkov Docs Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: hlxsites/prisma-cloud-docs
           path: checkov-docs
@@ -21,11 +21,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
+          cache: pnpm
           node-version: 20
 
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "9.1.4"
 
       - name: Install dependencies
         run: pnpm install
