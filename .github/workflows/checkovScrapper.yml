@@ -24,7 +24,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Run scraper script
         run: node scripts/checkovPolicyScrapper.js checkov-docs/docs/en/enterprise-edition/policy-reference
