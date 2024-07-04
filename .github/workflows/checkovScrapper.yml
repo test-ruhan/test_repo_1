@@ -48,6 +48,9 @@ jobs:
       - name: Generate branch name
         run: echo "BRANCH_NAME=update-checkov-severity-$(date +%s)" >> $GITHUB_ENV
 
+      - name: Debug - Print branch name
+        run: echo $BRANCH_NAME
+
       - name: Commit changes
         if: env.changed == 'true'
         run: |
@@ -67,7 +70,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update Checkov severity mapping"
-          branch: $BRANCH_NAME
+          branch: ${{ env.BRANCH_NAME }} # Use the environment variable correctly
           title: "Update Checkov severity mapping"
           body: "Automated update of Checkov severity mapping"
           labels: automated update
+          base: main # Specify the base branch
