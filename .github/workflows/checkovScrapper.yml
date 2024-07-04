@@ -64,14 +64,14 @@ jobs:
         run: |
           git push origin HEAD
 
+      - name: Install GitHub CLI
+        if: env.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Create Pull Request
         if: env.changed == 'true'
-        uses: peter-evans/create-pull-request@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Update Checkov severity mapping"
-          branch: ${{ env.BRANCH_NAME }}
-          title: "Update Checkov severity mapping"
-          body: "Automated update of Checkov severity mapping"
-          labels: automated update
-          base: main # Specify the base branch
+        run: |
+          gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+          gh pr create --title "Update Checkov severity mapping" --body "Automated update of Checkov severity mapping" --base main --head $BRANCH_NAME --label automated update
