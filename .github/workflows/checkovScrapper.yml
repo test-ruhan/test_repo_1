@@ -2,7 +2,7 @@ name: Update Checkov Severity Mapping
 
 on:
   # schedule:
-    # - cron: "0 0 * * 0" # Runs every Sunday at midnight UTC
+  #   - cron: "0 0 * * 0" # Runs every Sunday at midnight UTC
   workflow_dispatch: # Allows manual trigger from the GitHub UI
 
 jobs:
@@ -43,12 +43,31 @@ jobs:
         run: |
           git add checkov_policy_severity.ts
           git status
-          git diff --staged --exit-code || echo "::set-output name=changed::true"
+          git diff --staged --exit-code || echo "changed=true" >> $GITHUB_ENV
+
+      - name: Generate branch name
+        run: echo "BRANCH_NAME=update-checkov-severity-$(date +%s)" >> $GITHUB_ENV
 
       - name: Commit changes
-        if: steps.git_status.outputs.changed == 'true'
+        if: env.changed == 'true'
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git checkout -b $BRANCH_NAME
           git commit -m "Update Checkov severity mapping"
-          git push origin main
+
+      - name: Push changes
+        if: env.changed == 'true'
+        run: |
+          git push origin HEAD
+
+      - name: Create Pull Request
+        if: env.changed == 'true'
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update Checkov severity mapping"
+          branch: $BRANCH_NAME
+          title: "Update Checkov severity mapping"
+          body: "Automated update of Checkov severity mapping"
+          labels: automated update
