@@ -51,6 +51,11 @@ jobs:
       - name: Debug - Print branch name
         run: echo $BRANCH_NAME
 
+      - name: Run Lint
+        run: |
+          pnpm run lint
+          pnpm run lint:fix
+          
       - name: Commit changes
         if: env.changed == 'true'
         run: |
