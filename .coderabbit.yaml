@@ -16,6 +16,7 @@ reviews:
   path_filters:
     - '!apps/classes/vendor/**'
     - '!services/sumally-nx/**/gen/**'
+    - '!apps/classes/vendor/woothee/woothee/.coveralls.yml'
   path_instructions: [ ]
   abort_on_close: true
   auto_review:
